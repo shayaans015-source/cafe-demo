@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew & Byte Café</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6F4E37;
+            --secondary: #D4A574;
+            --accent: #E8D5C4;
+            --dark: #2C1810;
+            --light: #FDF6EC;
+            --success: #4CAF50;
+            --danger: #E74C3C;
+            --warning: #F39C12;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary {
+            background: var(--secondary);
+            color: var(--dark);
+        }
+
+        .btn-primary:hover {
+            background: #C49464;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .shop-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-open {
+            background: var(--success);
+        }
+
+        .status-closed {
+            background: var(--danger);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .current-time {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Views */
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Menu Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .menu-card.sold-out {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .menu-card.sold-out::after {
+            content: 'SOLD OUT';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            background: var(--danger);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 4px;
+            z-index: 10;
+        }
+
+        .menu-img {
+            width: 100%;
+            height: 180px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+
+        .menu-info {
+            padding: 1.2rem;
+        }
+
+        .menu-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .menu-desc {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .menu-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .add-btn:hover {
+            background: var(--dark);
+            transform: scale(1.1);
+        }
+
+        /* Cart */
+        .cart-sidebar {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+            transition: right 0.3s;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-sidebar.open {
+            right: 0;
+        }
+
+        .cart-header {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+        }
+
+        .cart-item-price {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .cart-footer {
+            padding: 1.5rem;
+            border-top: 2px solid var(--accent);
+            background: #fafafa;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 150;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            z-index: 300;
+            display: none;
+            opacity: 0;
+            transition: all 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal.show {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* UPI Payment */
+        .upi-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            background: white;
+            margin: 1rem auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--secondary);
+            border-radius: 12px;
+            font-size: 4rem;
+        }
+
+        .upi-id {
+            background: var(--dark);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+
+        /* Admin Panel */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .admin-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .product-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-item:hover {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .orders-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .order-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .order-time {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .order-items {
+            margin: 0.5rem 0;
+        }
+
+        .order-total {
+            font-weight: 700;
+            color: var(--primary);
+            text-align: right;
+        }
+
+        /* Preorder */
+        .preorder-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--warning);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            z-index: 5;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--dark);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s;
+            z-index: 400;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: slideIn 0.4s ease-out;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--success);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">☕ Brew & Byte Café</div>
+        <div class="nav-buttons">
+            <button class="btn btn-outline" onclick="showView('menu')">Menu</button>
+            <button class="btn btn-outline" onclick="showView('orders')">My Orders</button>
+            <button class="btn btn-primary" onclick="toggleCart()">🛒 Cart (<span id="cart-count">0</span>)</button>
+            <button class="btn btn-outline" onclick="showAdminLogin()">👤 Admin</button>
+        </div>
+    </header>
+
+    <!-- Status Bar -->
+    <div class="container">
+        <div class="status-bar">
+            <div class="shop-status">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="shop-status-text">Checking...</span>
+            </div>
+            <div class="current-time" id="current-time"></div>
+        </div>
+    </div>
+
+    <!-- Menu View -->
+    <div class="view active" id="menu-view">
+        <div class="container">
+            <h2 style="color: var(--primary); margin-bottom: 0.5rem;">Our Menu</h2>
+            <p style="color: #666; margin-bottom: 1rem;">Freshly brewed with love • Open 8:00 AM - 9:00 PM</p>
+            <div class="menu-grid" id="menu-grid">
+                <!-- Menu items injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders View -->
+    <div class="view" id="orders-view">
+        <div class="container">
+            <h2 style="color: var(--primary); margin-bottom: 1rem;">My Orders</h2>
+            <div id="customer-orders">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <h3>No orders yet</h3>
+                    <p>Your order history will appear here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin View -->
+    <div class="view" id="admin-view">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="color: var(--primary);">Admin Dashboard</h2>
+                <button class="btn btn-danger" onclick="logoutAdmin()">Logout</button>
+            </div>
+            
+            <div class="admin-grid">
+                <!-- Add Product -->
+                <div class="admin-section">
+                    <h3>➕ Add New Product</h3>
+                    <form id="add-product-form" onsubmit="addProduct(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <input type="text" id="prod-name" required placeholder="e.g., Caramel Latte">
+                            </div>
+                            <div class="form-group">
+                                <label>Price (₹)</label>
+                                <input type="number" id="prod-price" required min="1" placeholder="e.g., 120">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="prod-desc" rows="2" placeholder="Brief description..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="prod-category">
+                                <option value="coffee">Coffee</option>
+                                <option value="tea">Tea</option>
+                                <option value="pastry">Pastry</option>
+                                <option value="beverage">Cold Beverage</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Emoji Icon</label>
+                            <input type="text" id="prod-icon" value="☕" maxlength="2">
+                        </div>
+                        <button type="submit" class="btn btn-success" style="width: 100%;">Add Product</button>
+                    </form>
+                </div>
+
+                <!-- Manage Products -->
+                <div class="admin-section">
+                    <h3>📦 Manage Products</h3>
+                    <div class="product-list" id="admin-product-list">
+                        <!-- Product list injected here -->
+                    </div>
+                </div>
+
+                <!-- Orders Management -->
+                <div class="admin-section" style="grid-column: 1 / -1;">
+                    <h3>📋 All Orders</h3>
+                    <div class="orders-list" id="admin-orders-list">
+                        <!-- Orders injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3>Your Cart</h3>
+            <button class="btn btn-outline" onclick="toggleCart()" style="border-color: white;">✕</button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <div class="empty-state">
+                <div class="empty-state-icon">🛒</div>
+                <p>Your cart is empty</p>
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span>₹<span id="cart-total">0</span></span>
+            </div>
+            <button class="btn btn-success" style="width: 100%;" onclick="openCheckout()">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="overlay" id="checkout-overlay" onclick="closeCheckout()"></div>
+    <div class="modal" id="checkout-modal">
+        <div class="modal-header">Checkout</div>
+        
+        <div id="checkout-closed" style="display: none; text-align: center; padding: 2rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🔒</div>
+            <h3>Shop is Closed</h3>
+            <p>We are only accepting orders between <strong>8:00 AM - 9:00 PM</strong></p>
+            <p style="margin-top: 1rem; color: #666;">Current time: <span id="closed-time"></span></p>
+        </div>
+
+        <div id="checkout-open">
+            <form id="checkout-form" onsubmit="processPayment(event)">
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" id="customer-name" required placeholder="John Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="customer-phone" required placeholder="9876543210" pattern="[0-9]{10}">
+                </div>
+
+                <div class="form-group">
+                    <label>Order Type</label>
+                    <select id="order-type" onchange="togglePreorder()">
+                        <option value="now">Order Now (Pickup ASAP)</option>
+                        <option value="preorder">Preorder (Schedule Pickup)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="preorder-time-group" style="display: none;">
+                    <label>Pickup Time</label>
+                    <input type="time" id="pickup-time" min="08:00" max="21:00">
+                    <small style="color: #666;">Select time between 8:00 AM - 9:00 PM</small>
+                </div>
+
+                <div class="upi-section">
+                    <h4>Pay via UPI</h4>
+                    <div class="qr-placeholder" id="qr-code">📱</div>
+                    <p>Scan QR or pay to UPI ID:</p>
+                    <div class="upi-id" onclick="copyUpi()" id="upi-id-display">brewbyte@upi</div>
+                    <small>Click to copy UPI ID</small>
+                    
+                    <div class="form-group" style="margin-top: 1rem; text-align: left;">
+                        <label>UPI Transaction ID (after payment)</label>
+                        <input type="text" id="upi-txn-id" required placeholder="e.g., UPI123456789">
+                    </div>
+                </div>
+
+                <div style="background: var(--accent); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                        <span>Total Amount:</span>
+                        <span>₹<span id="checkout-total">0</span></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%;">Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div class="overlay" id="admin-overlay" onclick="closeAdminLogin()"></div>
+    <div class="modal" id="admin-modal">
+        <div class="modal-header">Admin Login</div>
+        <form onsubmit="loginAdmin(event)">
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="admin-password" required placeholder="Enter admin password">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            <p style="margin-top: 1rem; color: #666; font-size: 0.9rem; text-align: center;">
+                Default password: <strong>admin123</strong>
+            </p>
+        </form>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ==================== DATA & STATE ====================
+        const ADMIN_PASSWORD = 'admin123';
+        const SHOP_OPEN = 8;  // 8 AM
+        const SHOP_CLOSE = 21; // 9 PM
+
+        // Default menu items
+        const defaultProducts = [
+            { id: 1, name: 'Espresso', price: 60, desc: 'Strong and bold single shot', category: 'coffee', icon: '☕', available: true },
+            { id: 2, name: 'Cappuccino', price: 120, desc: 'Espresso with steamed milk foam', category: 'coffee', icon: '☕', available: true },
+            { id: 3, name: 'Caramel Latte', price: 150, desc: 'Espresso with caramel and milk', category: 'coffee', icon: '🍮', available: true },
+            { id: 4, name: 'Cold Brew', price: 130, desc: 'Smooth cold brewed coffee', category: 'coffee', icon: '🧊', available: true },
+            { id: 5, name: 'Masala Chai', price: 40, desc: 'Spiced Indian tea', category: 'tea', icon: '🍵', available: true },
+            { id: 6, name: 'Green Tea', price: 50, desc: 'Refreshing green tea', category: 'tea', icon: '🍃', available: true },
+            { id: 7, name: 'Croissant', price: 80, desc: 'Buttery flaky pastry', category: 'pastry', icon: '🥐', available: true },
+            { id: 8, name: 'Chocolate Muffin', price: 90, desc: 'Rich chocolate muffin', category: 'pastry', icon: '🧁', available: true },
+            { id: 9, name: 'Iced Tea', price: 70, desc: 'Chilled lemon iced tea', category: 'beverage', icon: '🥤', available: true },
+            { id: 10, name: 'Mango Smoothie', price: 140, desc: 'Fresh mango blended drink', category: 'beverage', icon: '🥭', available: true }
+        ];
+
+        // Initialize data
+        let products = JSON.parse(localStorage.getItem('cafe_products')) || [...defaultProducts];
+        let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
+        let orders = JSON.parse(localStorage.getItem('cafe_orders')) || [];
+        let isAdmin = false;
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function saveData() {
+            localStorage.setItem('cafe_products', JSON.stringify(products));
+            localStorage.setItem('cafe_cart', JSON.stringify(cart));
+            localStorage.setItem('cafe_orders', JSON.stringify(orders));
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : 'var(--dark)';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function generateId() {
+            return Date.now() + Math.random().toString(36).substr(2, 9);
+        }
+
+        // ==================== TIME & SHOP STATUS ====================
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            document.getElementById('current-time').textContent = timeStr;
+            document.getElementById('closed-time').textContent = timeStr;
+
+            const isOpen = hours >= SHOP_OPEN && hours < SHOP_CLOSE;
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('shop-status-text');
+
+            if (isOpen) {
+                dot.className = 'status-dot status-open';
+                text.textContent = `We're Open! (Closes at 9:00 PM)`;
+            } else {
+                dot.className = 'status-dot status-closed';
+                const openTime = hours < SHOP_OPEN ? 'Opens at 8:00 AM' : 'Opens tomorrow at 8:00 AM';
+                text.textContent = `We're Closed • ${openTime}`;
+            }
+
+            return isOpen;
+        }
+
+        // ==================== VIEW MANAGEMENT ====================
+        function showView(viewName) {
+            if (viewName === 'admin' && !isAdmin) {
+                showAdminLogin();
+                return;
+            }
+
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`${viewName}-view`).classList.add('active');
+            
+            if (viewName === 'menu') renderMenu();
+            if (viewName === 'orders') renderCustomerOrders();
+            if (viewName === 'admin') renderAdminPanel();
+        }
+
+        // ==================== MENU ====================
+        function renderMenu() {
+            const grid = document.getElementById('menu-grid');
+            const availableProducts = products.filter(p => p.available);
+            
+            if (availableProducts.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">😔</div>
+                        <h3>No items available</h3>
+                        <p>Check back later for our fresh menu!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = availableProducts.map(product => `
+                <div class="menu-card animate-in ${!product.available ? 'sold-out' : ''}">
+                    <div class="menu-img">${product.icon}</div>
+                    <div class="menu-info">
+                        <div class="menu-name">${product.name}</div>
+                        <div class="menu-desc">${product.desc}</div>
+                        <div class="menu-footer">
+                            <div class="menu-price">₹${product.price}</div>
+                            <button class="add-btn" onclick="addToCart(${product.id})" title="Add to cart">+</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== CART ====================
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product || !product.available) {
+                showToast('Item is currently unavailable', 'error');
+                return;
+            }
+
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            saveData();
+            updateCartUI();
+            showToast(`${product.name} added to cart!`, 'success');
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            saveData();
+            updateCartUI();
+        }
+
+        function updateQuantity(productId, delta) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                    return;
+                }
+                saveData();
+                updateCartUI();
+            }
+        }
+
+        function updateCartUI() {
+            const cartItems = document.getElementById('cart-items');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotal = document.getElementById('cart-total');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            cartCount.textContent = totalItems;
+            cartTotal.textContent = totalPrice;
+
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🛒</div>
+                        <p>Your cart is empty</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div style="font-size: 1.5rem;">${item.icon}</div>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-price">₹${item.price} each</div>
+                    </div>
+                    <div class="qty-control">
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">−</button>
+                        <span style="font-weight: 600; min-width: 20px; text-align: center;">${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                    </div>
+                    <div style="font-weight: 700; min-width: 60px; text-align: right;">
+                        ₹${item.price * item.quantity}
+                    </div>
+                    <button class="btn btn-danger" style="padding: 0.3rem 0.6rem;" onclick="removeFromCart(${item.id})">🗑</button>
+                </div>
+            `).join('');
+        }
+
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
+        }
+
+        // ==================== CHECKOUT ====================
+        function openCheckout() {
+            if (cart.length === 0) {
+                showToast('Your cart is empty!', 'error');
+                return;
+            }
+
+            const isOpen = updateTime();
+            const checkoutClosed = document.getElementById('checkout-closed');
+            const checkoutOpen = document.getElementById('checkout-open');
+
+            if (!isOpen) {
+                checkoutClosed.style.display = 'block';
+                checkoutOpen.style.display = 'none';
+            } else {
+                checkoutClosed.style.display = 'none';
+                checkoutOpen.style.display = 'block';
+                
+                // Set default pickup time to 30 mins from now
+                const now = new Date();
+                now.setMinutes(now.getMinutes() + 30);
+                const timeStr = now.toTimeString().slice(0, 5);
+                document.getElementById('pickup-time').value = timeStr;
+            }
+
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('checkout-total').textContent = total;
+            
+            // Generate QR code data
+            const upiId = 'brewbyte@upi';
+            const upiUrl = `upi://pay?pa=${upiId}&pn=Brew%20Byte%20Cafe&am=${total}&cu=INR`;
+            document.getElementById('upi-id-display').textContent = upiId;
+            
+            // Simple QR representation
+            document.getElementById('qr-code').innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem;">📱</div>
+                    <small style="font-size: 0.7rem; color: #666;">Scan with any UPI app</small>
+                </div>
+            `;
+
+            document.getElementById('checkout-modal').classList.add('show');
+            document.getElementById('checkout-overlay').classList.add('show');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkout-modal').classList.remove('show');
+            document.getElementById('checkout-overlay').classList.remove('show');
+        }
+
+        function togglePreorder() {
+            const orderType = document.getElementById('order-type').value;
+            const preorderGroup = document.getElementById('preorder-time-group');
+            preorderGroup.style.display = orderType === 'preorder' ? 'block' : 'none';
+        }
+
+        function copyUpi() {
+            const upiId = document.getElementById('upi-id-display').textContent;
+            navigator.clipboard.writeText(upiId).then(() => {
+                showToast('UPI ID copied!', 'success');
+            });
+        }
+
+        function processPayment(e) {
+            e.preventDefault();
+
+            const isOpen = updateTime();
+            if (!isOpen) {
+                showToast('Shop is closed! Orders only accepted 8 AM - 9 PM.', 'error');
+                return;
+            }
+
+            const name = document.getElementById('customer-name').value;
+            const phone = document.getElementById('customer-phone').value;
+            const orderType = document.getElementById('order-type').value;
+            const pickupTime = document.getElementById('pickup-time').value;
+            const upiTxnId = document.getElementById('upi-txn-id').value;
+
+            // Validate pickup time
+            if (orderType === 'preorder') {
+                if (!pickupTime) {
+                    showToast('Please select a pickup time', 'error');
+                    return;
+                }
+                const [hours, minutes] = pickupTime.split(':').map(Number);
+                if (hours < SHOP_OPEN || hours >= SHOP_CLOSE) {
+                    showToast(`Pickup time must be between ${SHOP_OPEN}:00 and ${SHOP_CLOSE}:00`, 'error');
+                    return;
+                }
+            }
+
+            const order = {
+                id: generateId(),
+                customerName: name,
+                customerPhone: phone,
+                items: [...cart],
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                orderType: orderType,
+                pickupTime: orderType === 'preorder' ? pickupTime : 'ASAP',
+                upiTxnId: upiTxnId,
+                status: 'pending',
+                timestamp: new Date().toISOString(),
+                orderTime: new Date().toLocaleString()
+            };
+
+            orders.push(order);
+            cart = [];
+            saveData();
+            
+            closeCheckout();
+            toggleCart();
+            updateCartUI();
+            
+            showToast(`Order placed! Order ID: #${order.id.slice(-6).toUpperCase()}`, 'success');
+            showView('orders');
+        }
+
+        // ==================== CUSTOMER ORDERS ====================
+        function renderCustomerOrders() {
+            const container = document.getElementById('customer-orders');
+            
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>No orders yet</h3>
+                        <p>Your order history will appear here</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by newest first
+            const sortedOrders = [...orders].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            container.innerHTML = sortedOrders.map(order => `
+                <div class="order-card animate-in">
+                    <div class="order-header">
+                        <div>
+                            <strong>Order #${order.id.slice(-6).toUpperCase()}</strong>
+                            <span class="badge ${order.status === 'completed' ? 'badge-success' : order.status === 'cancelled' ? 'badge-danger' : 'badge-warning'}">
+                                ${order.status.toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="order-time">${order.orderTime}</div>
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div style="display: flex; justify-content: space-between; padding: 0.3rem 0;">
+                                <span>${item.icon} ${item.name} x${item.quantity}</span>
+                                <span>₹${item.price * item.quantity}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #ddd;">
+                        <span style="color: #666;">
+                            ${order.orderType === 'preorder' ? `⏰ Pickup at ${order.pickupTime}` : '⚡ Pickup ASAP'}
+                        </span>
+                        <div class="order-total">₹${order.total}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== ADMIN PANEL ====================
+        function showAdminLogin() {
+            document.getElementById('admin-modal').classList.add('show');
+            document.getElementById('admin-overlay').classList.add('show');
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('admin-modal').classList.remove('show');
+            document.getElementById('admin-overlay').classList.remove('show');
+        }
+
+        function loginAdmin(e) {
+            e.preventDefault();
+            const password = document.getElementById('admin-password').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                isAdmin = true;
+                closeAdminLogin();
+                showView('admin');
+                showToast('Welcome, Admin!', 'success');
+            } else {
+                showToast('Incorrect password!', 'error');
+            }
+        }
+
+        function logoutAdmin() {
+            isAdmin = false;
+            showView('menu');
+            showToast('Logged out successfully', 'success');
+        }
+
+        function renderAdminPanel() {
+            // Render product list
+            const productList = document.getElementById('admin-product-list');
+            productList.innerHTML = products.map(product => `
+                <div class="product-item">
+                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                        <span style="font-size: 1.3rem;">${product.icon}</span>
+                        <div>
+                            <div style="font-weight: 600;">${product.name}</div>
+                            <div style="font-size: 0.85rem; color: #666;">₹${product.price} • ${product.category}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.8rem;">
+                        <span class="badge ${product.available ? 'badge-success' : 'badge-danger'}">
+                            ${product.available ? 'Available' : 'Sold Out'}
+                        </span>
+                        <div class="toggle-switch ${product.available ? 'active' : ''}" 
+                             onclick="toggleProductAvailability(${product.id})"
+                             title="Click to toggle availability"></div>
+                        <button class="btn btn-danger" style="padding: 0.3rem 0.6rem;" 
+                                onclick="deleteProduct(${product.id})">🗑</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render orders
+            const ordersList = document.getElementById('admin-orders-list');
+            if (orders.length === 0) {
+                ordersList.innerHTML = '<p style="text-align: center; color: #999;">No orders yet</p>';
+                return;
+            }
+
+            const sortedOrders = [...orders].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            ordersList.innerHTML = sortedOrders.map(order => `
+                <div class="order-card animate-in">
+                    <div class="order-header">
+                        <div>
+                            <strong>Order #${order.id.slice(-6).toUpperCase()}</strong>
+                            <span class="badge ${order.status === 'completed' ? 'badge-success' : order.status === 'cancelled' ? 'badge-danger' : 'badge-warning'}">
+                                ${order.status.toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="order-time">${order.orderTime}</div>
+                    </div>
+                    <div style="margin: 0.5rem 0;">
+                        <strong>${order.customerName}</strong> • ${order.customerPhone}
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div style="display: flex; justify-content: space-between; padding: 0.2rem 0;">
+                                <span>${item.icon} ${item.name} x${item.quantity}</span>
+                                <span>₹${item.price * item.quantity}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid #ddd;">
+                        <div>
+                            <span style="color: #666;">
+                                ${order.orderType === 'preorder' ? `⏰ Pickup: ${order.pickupTime}` : '⚡ ASAP'}
+                            </span>
+                            <br>
+                            <small style="color: #999;">UPI: ${order.upiTxnId}</small>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <div class="order-total" style="margin-right: 1rem;">₹${order.total}</div>
+                            ${order.status === 'pending' ? `
+                                <button class="btn btn-success" style="padding: 0.4rem 0.8rem;" onclick="updateOrderStatus('${order.id}', 'completed')">✓ Complete</button>
+                                <button class="btn btn-danger" style="padding: 0.4rem 0.8rem;" onclick="updateOrderStatus('${order.id}', 'cancelled')">✕ Cancel</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addProduct(e) {
+            e.preventDefault();
+            
+            const newProduct = {
+                id: Date.now(),
+                name: document.getElementById('prod-name').value,
+                price: parseInt(document.getElementById('prod-price').value),
+                desc: document.getElementById('prod-desc').value,
+                category: document.getElementById('prod-category').value,
+                icon: document.getElementById('prod-icon').value || '☕',
+                available: true
+            };
+
+            products.push(newProduct);
+            saveData();
+            
+            document.getElementById('add-product-form').reset();
+            document.getElementById('prod-icon').value = '☕';
+            
+            renderAdminPanel();
+            showToast('Product added successfully!', 'success');
+        }
+
+        function toggleProductAvailability(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                product.available = !product.available;
+                saveData();
+                renderAdminPanel();
+                renderMenu();
+                showToast(`${product.name} is now ${product.available ? 'available' : 'sold out'}`, 'success');
+            }
+        }
+
+        function deleteProduct(productId) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            products = products.filter(p => p.id !== productId);
+            saveData();
+            renderAdminPanel();
+            renderMenu();
+            showToast('Product deleted', 'success');
+        }
+
+        function updateOrderStatus(orderId, status) {
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = status;
+                saveData();
+                renderAdminPanel();
+                showToast(`Order marked as ${status}`, 'success');
+            }
+        }
+
+        // ==================== INITIALIZATION ====================
+        function init() {
+            updateTime();
+            setInterval(updateTime, 60000); // Update every minute
+            renderMenu();
+            updateCartUI();
+        }
+
+        // Run initialization
+        init();
+    </script>
+</body>
+</html>
